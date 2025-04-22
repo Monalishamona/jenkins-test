@@ -88,7 +88,7 @@ function App() {
       <nav className="bg-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-800">TechStore</h1>
+            <h1 className="text-2xl font-bold text-gray-800">BookStore</h1>
             <button 
               onClick={() => setShowCart(true)}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
