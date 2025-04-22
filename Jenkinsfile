@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-p 3000:3000'
+        }
+    }
 
     environment {
         DOCKER_IMAGE = "monalishaa/react-app"
@@ -23,7 +28,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'npm test -- --watchAll=false'
+                sh 'npm test -- --watchAll=false --ci'
             }
         }
 
@@ -53,7 +58,6 @@ pipeline {
         }
         success {
             echo 'Docker image pushed successfully!'
-            // Optional: Add Slack/Email notification
         }
         failure {
             echo 'Pipeline failed!'
