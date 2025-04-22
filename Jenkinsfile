@@ -1,62 +1,20 @@
 pipeline {
     agent any
-
-    environment {
-        DOCKER_IMAGE = "monalishaa/react-app"
-        DOCKER_TAG = "${env.BUILD_ID}"
-        REGISTRY_CREDENTIALS = 'dockerhub-credentials'
-    }
-
+    tools {nodejs "NODEJS"}
     stages {
-        stage('Checkout Code') {
+        stage('Build') {
             steps {
-                git branch: 'main', url: 'https://github.com/Monalishamona/jenkins-test.git'
+                sh 'npm install'
             }
         }
-
-        stage('Install & Build') {
+        stage('Deliver') {
             steps {
-                sh 'npm ci'
-                sh 'npm run build'
+                sh 'chmod -R +rwx ./jenkins/scripts/deliver.sh'
+                sh 'chmod -R +rwx ./jenkins/scripts/kill.sh'
+                sh './jenkins/scripts/deliver.sh'
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                sh './jenkins/scripts/kill.sh'
             }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'npm test -- --watchAll=false'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
-            }
-        }
-
-        stage('Push to Docker Registry') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', REGISTRY_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo 'Cleaning up workspace...'
-            deleteDir()
-        }
-        success {
-            echo 'Docker image pushed successfully!'
-            // Optional: Add Slack/Email notification
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
